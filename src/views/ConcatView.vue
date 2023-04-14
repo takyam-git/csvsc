@@ -6,7 +6,6 @@ import { parseCsv } from '@/infrastructures/csv/CsvParser'
 import { fileSizeLabel } from '@/infrastructures/file/FileSize'
 import Papa from 'papaparse'
 import { downloadCSV } from '@/infrastructures/file/FileDownloader'
-import { pick } from 'lodash'
 
 type CsvFile = {
   uuid: string
