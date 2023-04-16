@@ -5,7 +5,15 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      component: () => import('../views/RootView.vue')
+    },
+    {
+      path: '/concat',
       component: () => import('../views/ConcatView.vue')
+    },
+    {
+      path: '/edit',
+      component: () => import('../views/EditView.vue')
     }
   ]
 })

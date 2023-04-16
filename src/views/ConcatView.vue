@@ -1,31 +1,32 @@
 <script setup lang="ts">
+import { fill } from 'lodash'
 import { computed, ref } from 'vue'
 import { v4 } from 'uuid'
-import { readFile } from '@/infrastructures/file/FileReader'
-import { parseCsv } from '@/infrastructures/csv/CsvParser'
-import { fileSizeLabel } from '@/infrastructures/file/FileSize'
 import Papa from 'papaparse'
 import { downloadCSV } from '@/infrastructures/file/FileDownloader'
+import DragAndDropCsvFiles from '@/components/files/DragAndDropCsvFiles.vue'
+import type { CsvFile as BaseCsvFile } from '@/components/files/DragAndDropCsvFiles.type'
+import FileCard from '@/components/files/FileCard.vue'
 
 type CsvFile = {
   uuid: string
-  fileName: string
-  fileSize: number
-  fileType: string
-  header: string[]
   targetHeaderIndexes: number[]
-  rows: string[][]
-  rowSize: number
-  columnSize: number
-  isParsed: boolean
-  error: string | null
-}
+} & BaseCsvFile
 
-const isDragging = ref(false)
 const csvFiles = ref<CsvFile[]>([])
 const selectedUuids = ref<string[]>([])
 const isHorizontalConcatMode = ref(false)
 const horizontalKeyHeaderIndex = ref(0)
+
+const onLoadCsvFiles = (baseCsvFiles: BaseCsvFile[]) => {
+  csvFiles.value.push(
+    ...baseCsvFiles.map((csvFile) => ({
+      uuid: v4(),
+      targetHeaderIndexes: [],
+      ...csvFile
+    }))
+  )
+}
 
 const selectedCsvFiles = computed<CsvFile[]>(() => {
   const selectedCsvFiles: CsvFile[] = []
@@ -41,53 +42,16 @@ const selectedCsvFiles = computed<CsvFile[]>(() => {
 const findCsvFileIndex = (uuid: string): number => {
   return csvFiles.value.findIndex((csvFile) => csvFile.uuid === uuid)
 }
-const updateCsvFile = (uuid: string, params: Partial<CsvFile>): void => {
-  const index = findCsvFileIndex(uuid)
-  if (index < 0) {
-    return
-  }
-  csvFiles.value.splice(index, 1, { ...csvFiles.value[index], ...params })
-}
-const loadAndParseCsv = async (uuid: string, file: File) => {
-  const fileData = await readFile(file)
-  if (!fileData) {
-    updateCsvFile(uuid, { error: '読み込めませんでした' })
-    return
-  }
-  const parsed = await parseCsv(fileData)
-  updateCsvFile(uuid, { ...parsed, isParsed: true })
-}
-const onDragEnterLeft = () => (isDragging.value = true)
-const onDragLeaveLeft = () => (isDragging.value = false)
-const onDrop = (event: DragEvent) => {
-  isDragging.value = false
-  for (let file of event.dataTransfer?.files ?? []) {
-    if (file.type !== 'text/csv') {
-      continue
-    }
-    const uuid = v4()
-    csvFiles.value.push({
-      uuid,
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      header: [],
-      targetHeaderIndexes: [],
-      rows: [],
-      rowSize: 0,
-      columnSize: 0,
-      isParsed: false,
-      error: null
-    })
-    loadAndParseCsv(uuid, file)
-  }
-}
 const onClickFileCard = (csvFile: CsvFile) => {
   if (selectedUuids.value.includes(csvFile.uuid)) {
     selectedUuids.value = selectedUuids.value.filter((uuid) => uuid !== csvFile.uuid)
   } else {
     selectedUuids.value.push(csvFile.uuid)
   }
+}
+const removeCsvFile = (csvFile: CsvFile) => {
+  csvFiles.value = csvFiles.value.filter((csv) => csv.uuid !== csvFile.uuid)
+  selectedUuids.value = selectedUuids.value.filter((uuid) => uuid !== csvFile.uuid)
 }
 const clearCsvFiles = () => {
   clearSelectedUuids()
@@ -123,6 +87,17 @@ const toggleTargetHeaderCell = (uuid: string, headerIndex: number) => {
     : [...csvFile.targetHeaderIndexes, headerIndex]
   csvFiles.value.splice(index, 1, { ...csvFile, targetHeaderIndexes })
 }
+const hasKeyHeaderCell = (csvFile: CsvFile) => {
+  const keyFile = selectedCsvFiles.value[0]
+  if (!keyFile) {
+    return false
+  }
+  const keyHeader = keyFile.header[horizontalKeyHeaderIndex.value]
+  if (!keyHeader) {
+    return false
+  }
+  return csvFile.header.includes(keyHeader)
+}
 const concatHorizontal = () => {
   if (selectedCsvFiles.value.length < 2) {
     return
@@ -140,6 +115,9 @@ const concatHorizontal = () => {
 
   let newCsv = [...baseFile.rows]
   tailFiles.forEach((csvFile) => {
+    if (!hasKeyHeaderCell(csvFile)) {
+      return
+    }
     if (csvFile.targetHeaderIndexes.length === 0) {
       return
     }
@@ -166,7 +144,6 @@ const concatHorizontal = () => {
         return [...row, ...csvFile.targetHeaderIndexes.map((i) => csvFile.header[i])]
       }
       const baseValue = row[horizontalKeyHeaderIndex.value]
-      console.log(baseValue)
       if (baseValue === '') {
         return [...row, ...emptyAddRow]
       }
@@ -179,22 +156,32 @@ const concatHorizontal = () => {
   })
   downloadCSV(Papa.unparse(newCsv), `${new Date().toISOString()}.csv`)
 }
+const concatHorizontalSimple = () => {
+  const newCsv: string[][] = []
+  let lastFileColumnIndex = 0
+  selectedCsvFiles.value.map((csvFile) => {
+    let maxColumnSize = 0
+    csvFile.rows.forEach((row, index) => {
+      let newCsvRow = newCsv[index] ?? []
+      if (maxColumnSize < row.length) {
+        maxColumnSize = row.length
+      }
+      const prefix =
+        newCsvRow.length < lastFileColumnIndex
+          ? fill(Array(lastFileColumnIndex - newCsvRow.length), '')
+          : []
+      newCsvRow.push(...prefix, ...row)
+      newCsv[index] = newCsvRow
+    })
+    lastFileColumnIndex += maxColumnSize
+  })
+  downloadCSV(Papa.unparse(newCsv), `${new Date().toISOString()}.csv`)
+}
 </script>
 
 <template>
   <div class="concat-container">
-    <div class="drop-area-container">
-      <div
-        class="drop-area"
-        :class="{ dragging: isDragging }"
-        @dragenter.prevent="onDragEnterLeft"
-        @dragover.prevent="onDragEnterLeft"
-        @dragleave.prevent="onDragLeaveLeft"
-        @drop.prevent="onDrop"
-      >
-        ここにファイルをドロップしてください
-      </div>
-    </div>
+    <drag-and-drop-csv-files class="drop-area-container" @load="onLoadCsvFiles" />
     <div v-if="csvFiles.length > 0" class="files-container">
       <p>
         結合するファイルを選択してください (<a href="#" @click.prevent="clearSelectedUuids"
@@ -202,34 +189,37 @@ const concatHorizontal = () => {
         >) (<a href="#" @click.prevent="clearCsvFiles">ファイルをクリア</a>)
       </p>
       <div class="files">
-        <div
+        <file-card
           v-for="csvFile in csvFiles"
           :key="csvFile.uuid"
-          class="file-card"
-          :class="{ selected: selectedUuids.includes(csvFile.uuid) }"
-          @click.prevent="onClickFileCard(csvFile)"
-        >
-          <p v-if="selectedUuids.includes(csvFile.uuid)" class="selected-number">
-            {{ selectedUuids.findIndex((uuid) => uuid === csvFile.uuid) + 1 }}
-          </p>
-          <p class="file-name">{{ csvFile.fileName }}</p>
-          <p class="file-size">{{ fileSizeLabel(csvFile.fileSize) }} / {{ csvFile.rowSize }}行</p>
-        </div>
+          :selected="selectedUuids.includes(csvFile.uuid)"
+          :number="
+            selectedUuids.includes(csvFile.uuid)
+              ? selectedUuids.findIndex((uuid) => uuid === csvFile.uuid) + 1
+              : undefined
+          "
+          :csv-file="csvFile"
+          @click="onClickFileCard(csvFile)"
+          @clear="removeCsvFile(csvFile)"
+        />
       </div>
     </div>
     <div v-if="selectedUuids.length >= 2" class="concat-buttons-container">
       <p>結合の方法を選んでください</p>
       <div class="concat-buttons">
         <button class="button" @click.prevent="concatVertical">縦に結合する</button>
-        <button class="button" @click.prevent="isHorizontalConcatMode = true">横に結合する</button>
+        <button class="button" @click.prevent="concatHorizontalSimple">単純に横に結合する</button>
+        <button class="button" @click.prevent="isHorizontalConcatMode = true">
+          キーを元に横に結合する
+        </button>
       </div>
     </div>
     <div v-if="selectedUuids.length >= 2 && isHorizontalConcatMode" class="concat-files">
       <div class="concat-file-card">
-        <p class="concat-file-name">1. ベースとなるファイル: {{ csvFiles[0].fileName }}</p>
+        <p class="concat-file-name">1. ベースとなるファイル: {{ selectedCsvFiles[0].fileName }}</p>
         <div class="header-cells">
           <div
-            v-for="(headerCell, headerCellIndex) in csvFiles[0].header"
+            v-for="(headerCell, headerCellIndex) in selectedCsvFiles[0].header"
             :key="headerCellIndex"
             class="header-cell"
             :class="{ selected: horizontalKeyHeaderIndex === headerCellIndex }"
@@ -239,13 +229,26 @@ const concatHorizontal = () => {
           </div>
         </div>
       </div>
+      <p class="document-message">
+        結合する列を選んでください。<span class="column-name">{{
+          selectedCsvFiles[0].header[horizontalKeyHeaderIndex]
+        }}</span
+        >と同じ名前の列の値が一致する最初の行が結合されます。
+      </p>
       <div
         v-for="(csvFile, csvFileIndex) in selectedCsvFiles.slice(1, selectedCsvFiles.length)"
         :key="csvFile.uuid"
         class="concat-file-card"
       >
         <p class="concat-file-name">{{ csvFileIndex + 2 }}. {{ csvFile.fileName }}</p>
-        <div class="header-cells">
+        <div v-if="!hasKeyHeaderCell(csvFile)">
+          <span class="column-name"
+            >{{
+              selectedCsvFiles[0].header[horizontalKeyHeaderIndex]
+            }}という名前の列がないため結合されません。</span
+          >
+        </div>
+        <div v-if="hasKeyHeaderCell(csvFile)" class="header-cells">
           <div
             v-for="(header, headerIndex) in csvFile.header"
             :key="`${csvFile.uuid}-${headerIndex}`"
@@ -267,25 +270,7 @@ a {
   color: var(--color-text);
 }
 .button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 0;
-  text-decoration: none;
   flex: 1;
-  color: var(--color-text);
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-  }
-
-  &[disabled] {
-    cursor: default;
-  }
 }
 .concat-container {
   display: flex;
@@ -293,22 +278,7 @@ a {
   height: calc(100vh - 45px);
 
   .drop-area-container {
-    width: 100%;
-    height: 15%;
     padding: 30px;
-    .drop-area {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 2px dashed rgba(255, 255, 255, 0.25);
-
-      &.dragging {
-        background-color: rgba(255, 255, 255, 0.25);
-      }
-    }
   }
 
   .files-container {
@@ -320,40 +290,6 @@ a {
       align-items: stretch;
       justify-content: flex-start;
       column-gap: 10px;
-
-      .file-card {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        width: 160px;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        padding: 25px 10px 10px 10px;
-        cursor: pointer;
-
-        &.selected {
-          background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        &:hover {
-          background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .selected-number {
-          position: absolute;
-          top: 2px;
-          left: 5px;
-          z-index: 100;
-        }
-
-        .file-name {
-          font-size: 0.8rem;
-        }
-        .file-size {
-          font-size: 0.7rem;
-        }
-      }
     }
   }
 
@@ -376,8 +312,8 @@ a {
     padding: 0 30px;
 
     .concat-file-card {
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      background-color: var(--10-percente-white);
+      border: 1px solid var(--25-percente-white);
       padding: 10px;
 
       .concat-file-name {
@@ -393,17 +329,24 @@ a {
         .header-cell {
           width: 100px;
           font-size: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.25);
+          border: 1px solid var(--25-percente-white);
           padding: 5px 10px;
           cursor: pointer;
           &:hover {
-            background-color: rgba(255, 255, 255, 0.25);
+            background-color: var(--25-percente-white);
           }
           &.selected {
-            background-color: rgba(255, 255, 255, 0.25);
+            background-color: var(--25-percente-white);
           }
         }
       }
+    }
+  }
+
+  .document-message {
+    .column-name {
+      border: 1px solid var(--25-percente-white);
+      background-color: var(--10-percente-white);
     }
   }
 
@@ -415,7 +358,7 @@ a {
     .concat-body-left {
       flex: 1;
       &.dragging {
-        background-color: rgba(255, 255, 255, 0.25);
+        background-color: var(--25-percente-white);
       }
     }
     .concat-body-right {

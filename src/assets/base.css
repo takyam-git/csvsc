@@ -19,6 +19,9 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+
+  --10-percente-white: rgba(255, 255, 255, 0.1);
+  --25-percente-white: rgba(255, 255, 255, 0.25);
 }
 
 /* semantic color variables for this project */
@@ -85,4 +88,23 @@ a:visited {
 a:hover {
   color: var(--color-text);
   text-decoration: underline;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  text-decoration: none;
+  color: var(--color-text);
+  background-color: var(--10-percente-white);
+  border: 1px solid var(--25-percente-white);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: var(--25-percente-white);
+}
+.button[disabled] {
+  cursor: default;
 }
