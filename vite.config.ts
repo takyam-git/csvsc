@@ -14,14 +14,6 @@ export default defineConfig({
         {
           src: 'public/CNAME',
           dest: '.'
-        },
-        {
-          src: 'index.html',
-          dest: 'concat'
-        },
-        {
-          src: 'index.html',
-          dest: 'edit'
         }
       ]
     })
@@ -29,6 +21,15 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        concat: 'concat/index.html',
+        edit: 'edit/index.html'
+      }
     }
   }
 })
