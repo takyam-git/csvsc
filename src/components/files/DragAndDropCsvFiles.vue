@@ -18,7 +18,6 @@ const csvFiles = ref<CsvFile[]>([])
 const onDragEnterLeft = () => (isDragging.value = true)
 const onDragLeaveLeft = () => (isDragging.value = false)
 const onClickDropArea = () => {
-  console.log(inputRef)
   inputRef.value?.click()
 }
 const loadFiles = async (files: FileList | File[]) => {
