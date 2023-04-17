@@ -4,7 +4,7 @@ import { RouterView } from 'vue-router'
 
 <template>
   <header>
-    <h1><router-link to="/">CSVSC</router-link></h1>
+    <h1><router-link to="/">CSVSC(ALL LOCAL PROCESS)</router-link></h1>
   </header>
   <RouterView />
 </template>
