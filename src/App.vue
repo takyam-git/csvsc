@@ -2,15 +2,22 @@
 import { RouterView } from 'vue-router'
 import { Locale, useLocaleStore } from '@/stores/locale'
 import { useI18n } from 'vue-i18n'
+import type { Option } from '@/components/forms/SelectBox.vue'
+import SelectBox from '@/components/forms/SelectBox.vue'
+import { computed } from 'vue'
 const { locale, setLocale, isValidLocale } = useLocaleStore()
 const i18n = useI18n()
 i18n.locale.value = locale
 
-const onChangeLocale = (e: Event & { target: HTMLSelectElement }): void => {
-  const value = e.target.value
-  if (isValidLocale(value)) {
-    setLocale(value)
-    i18n.locale.value = value
+const localeOptions = computed<Option[]>(() => [
+  { label: '🇯🇵 日本語', value: Locale.Ja },
+  { label: '🇺🇸 English', value: Locale.En }
+])
+
+const onChangeLocale = (newLocale: string): void => {
+  if (isValidLocale(newLocale)) {
+    setLocale(newLocale)
+    i18n.locale.value = newLocale
   }
 }
 </script>
@@ -18,10 +25,7 @@ const onChangeLocale = (e: Event & { target: HTMLSelectElement }): void => {
 <template>
   <header>
     <h1><router-link to="/">CSVSC</router-link></h1>
-    <select class="locale-selector" :value="locale" @change="onChangeLocale">
-      <option class="locale-select" :value="Locale.Ja">🇯🇵 日本語</option>
-      <option class="locale-select" :value="Locale.En">🇺🇸 English</option>
-    </select>
+    <select-box :options="localeOptions" :value="locale" @change="onChangeLocale" />
   </header>
   <RouterView />
 </template>
