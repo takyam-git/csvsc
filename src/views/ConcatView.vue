@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 import Papa from 'papaparse'
 import { downloadCSV } from '@/infrastructures/file/FileDownloader'
 import DragAndDropCsvFiles from '@/components/files/DragAndDropCsvFiles.vue'
-import type { CsvFile as BaseCsvFile } from '@/components/files/DragAndDropCsvFiles.type'
+import type { CsvFile as BaseCsvFile } from '@/types/components/files/DragAndDropCsvFiles/DragAndDropCsvFiles.type'
 import FileCard from '@/components/files/FileCard.vue'
 import { useI18n } from 'vue-i18n'
 

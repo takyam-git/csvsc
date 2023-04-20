@@ -2,5 +2,6 @@
   "actions": {
     "concat": "結合する",
     "edit": "編集する"
-  }
+  },
+  "notImplemented": "未実装です"
 }

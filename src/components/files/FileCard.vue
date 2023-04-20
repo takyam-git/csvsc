@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { fileSizeLabel } from '@/infrastructures/file/FileSize'
-import type { CsvFile } from '@/components/files/DragAndDropCsvFiles.type'
+import type { CsvFile } from '@/types/components/files/DragAndDropCsvFiles/DragAndDropCsvFiles.type'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(
   defineProps<{
@@ -21,6 +22,8 @@ const emits = defineEmits<{
   (e: 'clear'): void
 }>()
 
+const { t, n } = useI18n()
+
 const isNumberVisible = computed(() => props.number !== null && typeof props.number !== 'undefined')
 </script>
 
@@ -34,10 +37,22 @@ const isNumberVisible = computed(() => props.number !== null && typeof props.num
     </div>
     <p class="file-name">{{ props.csvFile.fileName }}</p>
     <p class="file-size">
-      {{ fileSizeLabel(props.csvFile.fileSize) }} / {{ props.csvFile.rowSize }}行
+      {{ fileSizeLabel(props.csvFile.fileSize) }} /
+      {{ t('rows', { rows: n(props.csvFile.rowSize) }) }}
     </p>
   </div>
 </template>
+
+<i18n lang="json" locale="ja">
+{
+  "rows": "{rows}行"
+}
+</i18n>
+<i18n lang="json" locale="en">
+{
+  "rows": "{rows} rows"
+}
+</i18n>
 
 <style lang="scss" scoped>
 .file-card {

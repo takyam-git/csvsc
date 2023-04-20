@@ -105,6 +105,12 @@ a:hover {
 .button:hover {
   background-color: var(--25-percente-white);
 }
+.button.selected {
+  background-color: var(--25-percente-white);
+}
+.button.selected[disabled] {
+  background-color: inherit;
+}
 .button[disabled] {
   cursor: default;
 }

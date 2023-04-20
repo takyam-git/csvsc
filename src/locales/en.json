@@ -2,5 +2,6 @@
   "actions": {
     "concat": "concat",
     "edit": "edit"
-  }
+  },
+  "notImplemented": "Not implemented yet"
 }

@@ -2,7 +2,7 @@
 import { ref, withDefaults } from 'vue'
 import { readFile } from '@/infrastructures/file/FileReader'
 import { parseCsv } from '@/infrastructures/csv/CsvParser'
-import type { CsvFile } from '@/components/files/DragAndDropCsvFiles.type'
+import type { CsvFile } from '@/types/components/files/DragAndDropCsvFiles/DragAndDropCsvFiles.type'
 import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(defineProps<{ isSingle?: boolean }>(), {
