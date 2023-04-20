@@ -1,0 +1,6 @@
+{
+  "actions": {
+    "concat": "concat",
+    "edit": "edit"
+  }
+}

@@ -17,14 +17,17 @@
     "lodash": "^4.17.21",
     "papaparse": "^5.4.1",
     "pinia": "^2.0.32",
+    "pinia-plugin-persistedstate": "^3.1.0",
     "sass": "^1.58.3",
     "uuid": "^9.0.0",
     "vue": "^3.2.47",
+    "vue-i18n": "^9.2.2",
     "vue-router": "^4.1.6",
     "vue-virtual-scroller": "^2.0.0-beta.8",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@intlify/unplugin-vue-i18n": "^0.10.0",
     "@rushstack/eslint-patch": "^1.2.0",
     "@types/encoding-japanese": "^2.0.1",
     "@types/lodash": "^4.14.194",

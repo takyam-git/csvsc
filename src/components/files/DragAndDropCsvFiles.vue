@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { defineProps, ref, withDefaults } from 'vue'
+import { ref, withDefaults } from 'vue'
 import { readFile } from '@/infrastructures/file/FileReader'
 import { parseCsv } from '@/infrastructures/csv/CsvParser'
 import type { CsvFile } from '@/components/files/DragAndDropCsvFiles.type'
+import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(defineProps<{ isSingle?: boolean }>(), {
   isSingle: false
@@ -10,6 +11,8 @@ const props = withDefaults(defineProps<{ isSingle?: boolean }>(), {
 const emits = defineEmits<{
   (e: 'load', csvFiles: CsvFile[]): void
 }>()
+
+const { t } = useI18n()
 
 const inputRef = ref<HTMLInputElement>()
 const isDragging = ref(false)
@@ -63,7 +66,7 @@ const onChangeFile = async (event: any) => {
       @drop.prevent="onDrop"
       @click.prevent="onClickDropArea"
     >
-      ここにファイルをドロップしてください
+      {{ t('dropHere') }}
     </div>
     <input
       ref="inputRef"
@@ -75,6 +78,18 @@ const onChangeFile = async (event: any) => {
     />
   </div>
 </template>
+
+<i18n lang="json" locale="ja">
+{
+  "dropHere": "ここにファイルをドロップしてください"
+}
+</i18n>
+
+<i18n lang="json" locale="en">
+{
+  "dropHere": "Please drop the file here."
+}
+</i18n>
 
 <style lang="scss" scoped>
 .drop-area-container {

@@ -7,11 +7,14 @@ import { downloadCSV } from '@/infrastructures/file/FileDownloader'
 import DragAndDropCsvFiles from '@/components/files/DragAndDropCsvFiles.vue'
 import type { CsvFile as BaseCsvFile } from '@/components/files/DragAndDropCsvFiles.type'
 import FileCard from '@/components/files/FileCard.vue'
+import { useI18n } from 'vue-i18n'
 
 type CsvFile = {
   uuid: string
   targetHeaderIndexes: number[]
 } & BaseCsvFile
+
+const { t } = useI18n()
 
 const csvFiles = ref<CsvFile[]>([])
 const selectedUuids = ref<string[]>([])
@@ -184,9 +187,11 @@ const concatHorizontalSimple = () => {
     <drag-and-drop-csv-files class="drop-area-container" @load="onLoadCsvFiles" />
     <div v-if="csvFiles.length > 0" class="files-container">
       <p>
-        結合するファイルを選択してください (<a href="#" @click.prevent="clearSelectedUuids"
-          >選択をクリア</a
-        >) (<a href="#" @click.prevent="clearCsvFiles">ファイルをクリア</a>)
+        {{ t('selectConcatFiles') }} (<a href="#" @click.prevent="clearSelectedUuids">{{
+          t('deselect')
+        }}</a
+        >) (<a href="#" @click.prevent="clearCsvFiles">{{ t('clearFiles') }}</a
+        >)
       </p>
       <div class="files">
         <file-card
@@ -205,18 +210,20 @@ const concatHorizontalSimple = () => {
       </div>
     </div>
     <div v-if="selectedUuids.length >= 2" class="concat-buttons-container">
-      <p>結合の方法を選んでください</p>
+      <p>{{ t('chooseType') }}</p>
       <div class="concat-buttons">
-        <button class="button" @click.prevent="concatVertical">縦に結合する</button>
-        <button class="button" @click.prevent="concatHorizontalSimple">単純に横に結合する</button>
+        <button class="button" @click.prevent="concatVertical">{{ t('concatVertical') }}</button>
+        <button class="button" @click.prevent="concatHorizontalSimple">
+          {{ t('concatHorizontal') }}
+        </button>
         <button class="button" @click.prevent="isHorizontalConcatMode = true">
-          キーを元に横に結合する
+          {{ t('concatHorizontalByKey') }}
         </button>
       </div>
     </div>
     <div v-if="selectedUuids.length >= 2 && isHorizontalConcatMode" class="concat-files">
       <div class="concat-file-card">
-        <p class="concat-file-name">1. ベースとなるファイル: {{ selectedCsvFiles[0].fileName }}</p>
+        <p class="concat-file-name">1. {{ t('baseFile') }}: {{ selectedCsvFiles[0].fileName }}</p>
         <div class="header-cells">
           <div
             v-for="(headerCell, headerCellIndex) in selectedCsvFiles[0].header"
@@ -230,10 +237,12 @@ const concatHorizontalSimple = () => {
         </div>
       </div>
       <p class="document-message">
-        結合する列を選んでください。<span class="column-name">{{
-          selectedCsvFiles[0].header[horizontalKeyHeaderIndex]
-        }}</span
-        >と同じ名前の列の値が一致する最初の行が結合されます。
+        {{ t('chooseConcatColumn') }}
+        {{
+          t('chooseConcatColumnMessage', {
+            columnName: selectedCsvFiles[0].header[horizontalKeyHeaderIndex]
+          })
+        }}
       </p>
       <div
         v-for="(csvFile, csvFileIndex) in selectedCsvFiles.slice(1, selectedCsvFiles.length)"
@@ -242,11 +251,11 @@ const concatHorizontalSimple = () => {
       >
         <p class="concat-file-name">{{ csvFileIndex + 2 }}. {{ csvFile.fileName }}</p>
         <div v-if="!hasKeyHeaderCell(csvFile)">
-          <span class="column-name"
-            >{{
-              selectedCsvFiles[0].header[horizontalKeyHeaderIndex]
-            }}という名前の列がないため結合されません。</span
-          >
+          <span class="column-name">{{
+            t('keyColumnNotFound', {
+              columnName: selectedCsvFiles[0].header[horizontalKeyHeaderIndex]
+            })
+          }}</span>
         </div>
         <div v-if="hasKeyHeaderCell(csvFile)" class="header-cells">
           <div
@@ -260,10 +269,42 @@ const concatHorizontalSimple = () => {
           </div>
         </div>
       </div>
-      <button class="button" @click.prevent="concatHorizontal">結合する</button>
+      <button class="button" @click.prevent="concatHorizontal">{{ $t('actions.concat') }}</button>
     </div>
   </div>
 </template>
+
+<i18n lang="json" locale="ja">
+{
+  "selectConcatFiles": "結合するファイルを選択してください",
+  "deselect": "選択を解除",
+  "clearFiles": "ファイルをクリア",
+  "chooseType": "結合の方法を選んでください",
+  "concatVertical": "縦に結合する",
+  "concatHorizontal": "単純に横に結合する",
+  "concatHorizontalByKey": "キーを元に横に結合する",
+  "baseFile": "ベースとなるファイル",
+  "chooseConcatColumn": "結合する列を選んでください。",
+  "chooseConcatColumnMessage": "「{columnName}」と同じ名前の列の値が一致する最初の行が結合されます。",
+  "keyColumnNotFound": "「{columnName}」という名前の列がないため結合されません。"
+}
+</i18n>
+
+<i18n lang="json" locale="en">
+{
+  "selectConcatFiles": "Please select the files to merge.",
+  "deselect": "Deselect",
+  "clearFiles": "Clear files",
+  "chooseType": "Choose the merging method",
+  "concatVertical": "Merge vertically",
+  "concatHorizontal": "Simply merge horizontally",
+  "concatHorizontalByKey": "Merge horizontally based on the key",
+  "baseFile": "Base file",
+  "chooseConcatColumn": "Please select the columns to merge.",
+  "chooseConcatColumnMessage": "The first row with matching values in the column named \"{columnName}\" will be merged.",
+  "keyColumnNotFound": "The column with the name \"{columnName}\" does not exist, so it will not be merged."
+}
+</i18n>
 
 <style lang="scss" scoped>
 a {
