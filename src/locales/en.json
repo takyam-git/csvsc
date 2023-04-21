@@ -3,5 +3,15 @@
     "concat": "concat",
     "edit": "edit"
   },
-  "notImplemented": "Not implemented yet"
+  "notImplemented": "Not implemented yet",
+  "sort": {
+    "order": {
+      "asc": "ASC",
+      "desc": "DESC"
+    },
+    "type": {
+      "string": "String",
+      "number": "Number"
+    }
+  }
 }

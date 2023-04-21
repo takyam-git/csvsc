@@ -3,5 +3,15 @@
     "concat": "結合する",
     "edit": "編集する"
   },
-  "notImplemented": "未実装です"
+  "notImplemented": "未実装です",
+  "sort": {
+    "order": {
+      "asc": "昇順",
+      "desc": "降順"
+    },
+    "type": {
+      "string": "文字",
+      "number": "数字"
+    }
+  }
 }

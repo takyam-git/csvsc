@@ -32,7 +32,7 @@ const actionTypes = computed(() => Object.values(ActionType))
       <drag-and-drop-csv-files v-if="!csvFile" is-single @load="onLoadCsvFiles" />
       <file-card v-if="csvFile" :csv-file="csvFile" @clear="csvFile = null" />
     </div>
-    <div v-if="csvFile" class="actions-container">
+    <div v-if="csvFile" class="action-buttons-container">
       <button
         v-for="actionType in actionTypes"
         :key="actionType"
@@ -43,10 +43,10 @@ const actionTypes = computed(() => Object.values(ActionType))
         {{ t(actionType) }}
       </button>
     </div>
-    <div class="actions-container">
+    <div v-if="csvFile" class="actions-container">
       <row-filter-action v-if="currentActionType === ActionType.RowFilter" />
       <column-filter-action v-if="currentActionType === ActionType.ColumnFilter" />
-      <sort-rows-action v-if="currentActionType === ActionType.SortRows" />
+      <sort-rows-action v-if="currentActionType === ActionType.SortRows" :csv="csvFile" />
       <sort-columns-action v-if="currentActionType === ActionType.SortColumns" />
       <replace-values-action v-if="currentActionType === ActionType.ReplaceValues" />
       <add-columns-action v-if="currentActionType === ActionType.AddColumns" />
@@ -83,12 +83,13 @@ const actionTypes = computed(() => Object.values(ActionType))
     margin-bottom: 20px;
   }
 
-  .actions-container {
+  .action-buttons-container {
     display: flex;
     justify-content: flex-start;
     align-items: stretch;
     flex-wrap: wrap;
     gap: 10px;
+    margin-bottom: 20px;
 
     button.button {
       width: 150px;

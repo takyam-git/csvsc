@@ -365,7 +365,8 @@ a {
 
       .header-cells {
         display: flex;
-        column-gap: 10px;
+        gap: 10px;
+        flex-wrap: wrap;
 
         .header-cell {
           width: 100px;
