@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import SelectBox from '@/components/forms/SelectBox.vue'
 import type { SortKey } from '@/domains/csv/Sort'
 import { sortCsvRows, SortOrder, SortType } from '@/domains/csv/Sort'
-import { downloadCSV, downloadCsvByRows } from '@/infrastructures/file/FileDownloader'
+import { downloadCsvByRows } from '@/infrastructures/file/FileDownloader'
 
 type DisplayHeader = {
   headerIndex: number

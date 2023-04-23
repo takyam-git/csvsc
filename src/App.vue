@@ -5,9 +5,14 @@ import { useI18n } from 'vue-i18n'
 import type { Option } from '@/components/forms/SelectBox.vue'
 import SelectBox from '@/components/forms/SelectBox.vue'
 import { computed } from 'vue'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ja'
+import 'dayjs/locale/es-us'
+
 const { locale, setLocale, isValidLocale } = useLocaleStore()
 const i18n = useI18n()
 i18n.locale.value = locale
+dayjs.locale(locale === Locale.Ja ? 'ja' : 'en-us')
 
 const localeOptions = computed<Option[]>(() => [
   { label: '🇯🇵 日本語', value: Locale.Ja },
@@ -17,6 +22,7 @@ const localeOptions = computed<Option[]>(() => [
 const onChangeLocale = (newLocale: string): void => {
   if (isValidLocale(newLocale)) {
     setLocale(newLocale)
+    dayjs.locale(locale === Locale.Ja ? 'ja' : 'en-us')
     i18n.locale.value = newLocale
   }
 }

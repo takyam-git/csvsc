@@ -11,6 +11,11 @@ import en from './locales/en.json'
 import './assets/main.css'
 import { Locale } from '@/stores/locale'
 import { isNumeric, ordinalSuffix } from '@/infrastructures/StringUtils'
+import dayjs from 'dayjs'
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+dayjs.extend(isSameOrBefore)
+dayjs.extend(isSameOrAfter)
 
 type I18nFunctionMessageContext = { named: (value: string) => string }
 const i18n = createI18n({

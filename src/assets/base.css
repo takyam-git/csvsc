@@ -114,3 +114,17 @@ a:hover {
 .button[disabled] {
   cursor: default;
 }
+.button.small {
+  padding: 3px 0;
+}
+
+input {
+  background-color: var(--vt-c-black-soft);
+  color: var(--color-text);
+  border: 1px solid var(--25-percente-white);
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+input:focus {
+  background-color: var(--10-percente-white);
+}

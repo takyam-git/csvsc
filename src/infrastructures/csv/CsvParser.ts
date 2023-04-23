@@ -1,8 +1,11 @@
 import Papa from 'papaparse'
 
+export type CsvRow = string[]
+export type CsvRows = CsvRow[]
+
 export type CsvFile = {
-  header: string[]
-  rows: string[][]
+  header: CsvRow
+  rows: CsvRows
   rowSize: number
   columnSize: number
 }

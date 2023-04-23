@@ -39,6 +39,7 @@ select {
   background-color: var(--vt-c-black-soft);
   color: var(--color-text);
   padding: 3px 5px;
+  border: 1px solid var(--25-percente-white);
   border-radius: 4px;
   cursor: pointer;
 }
