@@ -32,6 +32,8 @@ export enum CompareType {
   LessThan = 'less-than',
   LessThanOrEqual = 'less-than-or-equal'
 }
+export const isCompareType = (value: string | any): value is CompareType =>
+  Object.values(CompareType).includes(value)
 
 type CompareTypeMapper = {
   [DataType.Numeric]: CompareType

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import type { FilterCondition } from '@/domains/csv/RowFilter'
-import { CompareType, DataType, isDataType } from '@/domains/csv/RowFilter'
+import { CompareType, DataType, isCompareType, isDataType } from '@/domains/csv/RowFilter'
 import { computed } from 'vue'
 import SelectBox from '@/components/forms/SelectBox.vue'
 import type { CsvRow } from '@/infrastructures/csv/CsvParser'
@@ -77,6 +77,18 @@ const onChangeDataType = (uuid: string, value: string) => {
   }
   onChangeCondition(uuid, newValue)
 }
+const onChangeCompareType = (uuid: string, value: string) => {
+  if (!isCompareType(value)) {
+    return
+  }
+  onChangeCondition(uuid, { compareType: value })
+}
+const onChangeCompareValue = (uuid: string, event: Event) => {
+  if (!(event.target instanceof HTMLInputElement)) {
+    return
+  }
+  onChangeCondition(uuid, { compareValue: event.target.value })
+}
 </script>
 
 <template>
@@ -105,7 +117,7 @@ const onChangeDataType = (uuid: string, value: string) => {
         :id="`${modelValue.uuid}-compare-type`"
         :value="`${modelValue.compareType}`"
         :options="compareTypeOptions[modelValue.dataType]"
-        @change="onChangeCondition(modelValue.uuid, { compareType: $event })"
+        @change="onChangeCompareType(modelValue.uuid, $event)"
       />
     </div>
     <div class="condition-field">
@@ -123,7 +135,7 @@ const onChangeDataType = (uuid: string, value: string) => {
             ? 'time'
             : 'text'
         "
-        @input="onChangeCondition(modelValue.uuid, { compareValue: $event.target.value })"
+        @input="onChangeCompareValue(modelValue.uuid, $event)"
       />
     </div>
   </div>
