@@ -5,11 +5,15 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n'
+import checker from 'vite-plugin-checker'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    checker({
+      vueTsc: true
+    }),
     viteStaticCopy({
       targets: [
         {
