@@ -53,7 +53,7 @@ const submitSort = async () => {
 <i18n lang="json" locale="en">
 {
   "selectMessage": "Please deselect any unnecessary columns. Only the selected columns will be included.",
-  "submitFilter": "Execute Filter"
+  "submitFilter": "Execute column filter"
 }
 </i18n>
 

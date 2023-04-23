@@ -47,7 +47,7 @@ const actionTypes = computed(() => Object.values(ActionType))
       <row-filter-action v-if="currentActionType === ActionType.RowFilter" :csv="csvFile" />
       <column-filter-action v-if="currentActionType === ActionType.ColumnFilter" :csv="csvFile" />
       <sort-rows-action v-if="currentActionType === ActionType.SortRows" :csv="csvFile" />
-      <sort-columns-action v-if="currentActionType === ActionType.SortColumns" />
+      <sort-columns-action v-if="currentActionType === ActionType.SortColumns" :csv="csvFile" />
       <replace-values-action v-if="currentActionType === ActionType.ReplaceValues" />
       <add-columns-action v-if="currentActionType === ActionType.AddColumns" />
     </div>

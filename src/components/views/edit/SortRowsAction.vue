@@ -3,8 +3,8 @@ import type { CsvFile } from '@/types/components/files/DragAndDropCsvFiles/DragA
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectBox from '@/components/forms/SelectBox.vue'
-import type { SortKey } from '@/domains/csv/Sort'
-import { sortCsvRows, SortOrder, SortType } from '@/domains/csv/Sort'
+import type { SortKey } from '@/domains/csv/RowSort'
+import { sortCsvRows, SortOrder, SortType } from '@/domains/csv/RowSort'
 import { downloadCsvByRows } from '@/infrastructures/file/FileDownloader'
 
 type DisplayHeader = {

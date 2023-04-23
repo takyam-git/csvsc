@@ -5,6 +5,7 @@ export const filterColumns = (csv: CsvFile, indexes: number[]): CsvFile => {
   return {
     ...csv,
     header: newRows[0],
-    rows: newRows
+    rows: newRows,
+    columnSize: newRows.length
   }
 }

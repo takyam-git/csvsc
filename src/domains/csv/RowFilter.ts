@@ -138,6 +138,7 @@ export const filterRows = (csv: CsvFile, conditions: FilterCondition[]): CsvFile
   )
   return {
     ...csv,
-    rows: [csv.rows[0], ...newRows]
+    rows: [csv.rows[0], ...newRows],
+    rowSize: newRows.length + 1
   }
 }
