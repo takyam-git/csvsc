@@ -68,7 +68,7 @@ const submitSort = async () => {
 </i18n>
 <i18n lang="json" locale="en">
 {
-  "submitFilter": "Run filter",
+  "submitFilter": "Execute filter",
   "addCondition": "Add condition"
 }
 </i18n>
